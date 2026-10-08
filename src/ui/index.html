@@ -1,0 +1,891 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          13px/1.5 Inter,
+          Arial,
+          sans-serif;
+        color: #182239;
+        background: #f4f6fa;
+      }
+      header {
+        padding: 22px 26px;
+        background: #17243b;
+        color: white;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0;
+      }
+      header p {
+        color: #b9c6db;
+        margin: 5px 0 0;
+      }
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        padding: 16px 24px;
+        background: white;
+        border-bottom: 1px solid #dce1eb;
+      }
+      button,
+      select {
+        font: inherit;
+        padding: 9px 13px;
+        border: 1px solid #ccd3df;
+        border-radius: 7px;
+        background: white;
+        color: #24334c;
+      }
+      button {
+        cursor: pointer;
+      }
+      button.primary {
+        background: #365eea;
+        color: white;
+        border: 0;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      main {
+        padding: 18px 24px;
+      }
+      .stats {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .stat {
+        background: white;
+        border: 1px solid #e0e5ee;
+        border-radius: 7px;
+        padding: 8px 14px;
+      }
+      .stat b {
+        font-size: 20px;
+        margin-right: 6px;
+      }
+      #status {
+        font-weight: 600;
+      }
+      #analysis-progress {
+        margin-top: 10px;
+      }
+      #analysis-progress label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      #progress-bar {
+        width: 100%;
+        height: 10px;
+        accent-color: #365eea;
+      }
+      iframe {
+        width: 100%;
+        height: 340px;
+        border: 1px solid #d8deea;
+        border-radius: 8px;
+        background: white;
+      }
+      .previewbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 14px 0;
+      }
+      details {
+        background: white;
+        border: 1px solid #e0e5ee;
+        border-radius: 7px;
+        padding: 10px;
+        margin-top: 12px;
+      }
+      ul {
+        padding-left: 22px;
+      }
+      #errors {
+        color: #ae2035;
+      }
+      .hint {
+        color: #59677d;
+        font-size: 12px;
+      }
+      #editor {
+        padding: 12px;
+        margin: 12px 0;
+        border: 1px solid #ccd3df;
+        border-radius: 8px;
+        background: white;
+      }
+      #edit-fields {
+        min-width: 0;
+        border: 0;
+        padding: 8px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      #edit-fields label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      #edit-fields input {
+        width: 100px;
+        padding: 7px;
+        border: 1px solid #ccd3df;
+        border-radius: 5px;
+      }
+      #edit-text {
+        width: 420px;
+        max-width: 100%;
+        height: 60px;
+      }
+      #edit-layer {
+        max-width: 400px;
+      }
+      a {
+        color: #365eea;
+      }
+      #canvas-viewport {
+        height: 620px;
+        overflow: auto;
+        background: #dfe4ed;
+      }
+      #code-dialog {
+        width: 92vw;
+        max-width: none;
+        height: 90vh;
+        border: 1px solid #ccd3df;
+        border-radius: 8px;
+      }
+      #code-content {
+        width: 100%;
+        height: 65vh;
+        resize: vertical;
+        font:
+          13px/1.6 Consolas,
+          monospace;
+        tab-size: 2;
+        white-space: pre;
+      }
+      #layer-search {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 6px;
+      }
+      #figma-selection-card {
+        display: inline-block;
+        max-width: 240px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        flex-shrink: 0;
+        touch-action: none;
+      }
+      .previewbar {
+        flex-wrap: wrap;
+      }
+      #canvas-stage {
+        position: relative;
+      }
+      #window-resize {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px 0 0 0;
+        background: #365eea;
+        color: white;
+        font-size: 24px;
+        cursor: nwse-resize;
+        touch-action: none;
+      }
+      #edit-status {
+        min-height: 3em;
+      }
+      #frame {
+        display: block;
+        transform-origin: top left;
+        border: 0;
+        border-radius: 0;
+      }
+      #workspace.canvas-focus {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: #f4f6fa;
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 10px;
+        padding: 12px;
+      }
+      .canvas-focus #editor {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        margin: 0;
+        overflow: auto;
+      }
+      .canvas-focus #editor select,
+      .canvas-focus #edit-text {
+        max-width: 100%;
+      }
+      .canvas-focus > .previewbar {
+        grid-column: 2;
+        margin: 0;
+        flex-wrap: wrap;
+      }
+      .canvas-focus #canvas-viewport {
+        grid-column: 2;
+        height: 100%;
+        min-height: 0;
+      }
+      .canvas-focus > .hint {
+        display: none;
+      }
+
+      /* Canvas-first workspace */
+      [hidden] {
+        display: none !important;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      h1 {
+        font-size: 16px;
+        letter-spacing: -0.3px;
+      }
+      header p {
+        margin: 0;
+        font-size: 11px;
+      }
+      .toolbar {
+        padding: 8px 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      button,
+      select {
+        padding: 6px 9px;
+        font-size: 12px;
+      }
+      button:hover:not(:disabled) {
+        border-color: #365eea;
+        background: #eef2ff;
+        color: #2946b5;
+      }
+      button:focus-visible,
+      select:focus-visible,
+      input:focus-visible,
+      #panel-splitter:focus-visible {
+        outline: 2px solid #365eea;
+        outline-offset: 2px;
+      }
+      main {
+        padding: 0;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      #workspace,
+      #workspace.canvas-focus {
+        --panel-width: 280px;
+        display: grid;
+        grid-template-columns: var(--panel-width) 6px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 0;
+        padding: 0;
+        min-height: 0;
+        flex: 1;
+      }
+      #workspace-sidebar {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        min-height: 0;
+        min-width: 0;
+        overflow: auto;
+        background: #fff;
+        border-right: 1px solid #dce1eb;
+      }
+      .panel-tabs {
+        display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 8px;
+        gap: 4px;
+        background: #fff;
+        border-bottom: 1px solid #e3e7ef;
+      }
+      .panel-tabs button {
+        flex: 1;
+        border: 0;
+        background: transparent;
+      }
+      .panel-tabs button[aria-pressed="true"] {
+        background: #eaf0ff;
+        color: #284ac3;
+        font-weight: 600;
+      }
+      .workspace-panel {
+        padding: 12px;
+      }
+      .workspace-panel h2 {
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      #edit-layer {
+        display: block;
+        width: 100%;
+        max-width: none;
+        height: clamp(160px, 32vh, 340px);
+        padding: 4px;
+        margin: 8px 0 12px;
+        border-color: #e2e7ef;
+      }
+      #edit-layer option {
+        padding: 7px 6px;
+        border-radius: 4px;
+      }
+      #layer-search {
+        border: 1px solid #dce1eb;
+        border-radius: 6px;
+        margin-top: 12px;
+      }
+      .layer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      #edit-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 8px;
+      }
+      #edit-fields label {
+        min-width: 0;
+        font-size: 11px;
+        color: #59677d;
+      }
+      #edit-fields input,
+      #edit-fields select,
+      #edit-fields textarea {
+        width: 100%;
+        min-width: 0;
+      }
+      #edit-fields label:has(textarea),
+      #edit-fields label:has(#edit-family),
+      #edit-fields > span {
+        grid-column: 1 / -1;
+      }
+      #edit-text {
+        resize: vertical;
+        border: 1px solid #ccd3df;
+        border-radius: 5px;
+      }
+      #panel-splitter {
+        grid-column: 2;
+        grid-row: 1 / 3;
+        cursor: col-resize;
+        background: #e7ebf2;
+        touch-action: none;
+      }
+      #panel-splitter:hover {
+        background: #91a7fa;
+      }
+      #workspace > .previewbar {
+        grid-column: 3;
+        grid-row: 1;
+        margin: 0;
+        padding: 8px 10px;
+        background: #fff;
+        border-bottom: 1px solid #dce1eb;
+        gap: 6px;
+      }
+      #pages {
+        max-width: 180px;
+      }
+      #workspace #canvas-viewport {
+        grid-column: 3;
+        grid-row: 2;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        background-color: #e9edf3;
+        background-image: radial-gradient(#c7cfdc 1px, transparent 1px);
+        background-size: 16px 16px;
+      }
+      #workspace > .hint {
+        display: none;
+      }
+      #workspace.panels-hidden {
+        grid-template-columns: 0 0 minmax(0, 1fr);
+      }
+      .panels-hidden #workspace-sidebar,
+      .panels-hidden #panel-splitter {
+        display: none;
+      }
+      #workspace-status {
+        padding: 6px 14px;
+        border-top: 1px solid #dce1eb;
+        background: white;
+        font-size: 11px;
+        min-height: 30px;
+        padding-right: 42px;
+      }
+      #analysis-progress {
+        margin: 2px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #analysis-progress label {
+        margin: 0;
+        white-space: nowrap;
+        font-size: 10px;
+      }
+      #progress-bar {
+        height: 5px;
+        max-width: 220px;
+      }
+      #panel-project > section {
+        padding: 12px 0 !important;
+      }
+      #panel-project select {
+        max-width: 100%;
+      }
+      #panel-project p {
+        font-size: 11px;
+      }
+      .project-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      #figma-selection-card {
+        max-width: 100%;
+      }
+      .stats {
+        gap: 5px;
+      }
+      .stat {
+        padding: 5px 7px;
+        font-size: 11px;
+      }
+      .stat b {
+        font-size: 14px;
+      }
+      dialog::backdrop {
+        background: #14213b66;
+      }
+      #window-resize {
+        width: 26px;
+        height: 26px;
+        font-size: 18px;
+      }
+      @media (max-width: 800px) {
+        header p {
+          display: none;
+        }
+        .toolbar {
+          gap: 5px;
+        }
+        .toolbar label {
+          font-size: 11px;
+        }
+        #workspace {
+          --panel-width: 220px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Figma HTML Exporter</h1>
+      <p>Independent websites. Readable HTML, CSS and JavaScript.</p>
+    </header>
+    <div class="toolbar">
+      <label
+        ><input id="live-sync" type="checkbox" checked />Live sync from
+        Figma</label
+      >
+      <label
+        ><input id="preserve-geometry" type="checkbox" checked />Preserve Figma
+        positions</label
+      >
+      <button id="selection" class="primary">Analyze Selection</button
+      ><button id="page">Analyze Page</button
+      ><button id="preview" disabled>Preview</button
+      ><button id="export" disabled>Export ZIP</button>
+    </div>
+    <section
+      style="
+        padding: 12px 24px;
+        background: #fff;
+        border-bottom: 1px solid #ccd3df;
+      "
+    >
+      <label
+        >Prepare original Figma layers
+        <select id="prepare-scope">
+          <option value="selection">Selected section / frame</option>
+          <option value="page">Entire current page</option>
+        </select></label
+      >
+      <button id="prepare-layout">Prepare Figma layout</button>
+      <p id="prepare-status" role="status">
+        Converts auto-layout frames to fixed positions in Figma. Review there,
+        then use Analyze or Import selection. Components and locked layers are
+        skipped. Undo in Figma restores auto-layout.
+      </p>
+    </section>
+    <main>
+      <p class="hint" id="connection" role="status">Connecting to Figma…</p>
+      <button id="check-connection">Check connection</button>
+      <div id="status" role="status" aria-live="polite">
+        Select website frames in Figma to begin.
+      </div>
+      <p class="hint">
+        Each selected root becomes a website page. Analyze Page uses visible
+        top-level layers.
+      </p>
+      <div id="analysis-progress" hidden>
+        <label for="progress-bar" id="progress-label">Analysis 0%</label>
+        <progress id="progress-bar" max="100" value="0">0%</progress>
+      </div>
+      <p id="sync-status" role="status">
+        Live sync starts after analysis. Editing in the plugin pauses sync to
+        protect your edits; resume to replace them with Figma.
+      </p>
+      <div id="stats" class="stats"></div>
+      <p id="reference-status" class="hint"></p>
+      <strong>Generated website</strong>
+      <div id="workspace">
+        <section id="editor" hidden aria-label="Website correction editor">
+          <label
+            ><input type="checkbox" id="edit-mode" checked /> Edit generated
+            layout</label
+          >
+          <p class="hint">
+            Select and drag a layer in the website below, or choose it here.
+            Corrections are included in the ZIP. Your Figma file is unchanged.
+            Re-analyzing clears these edits. Drag a selected group to move it
+            together. Alt-click selects a child. Hold Space and drag, or
+            middle-drag, to pan. Shift-click adds layers; Ctrl-drag draws a
+            selection box. Ctrl+Z undoes; Ctrl+Shift+Z redoes. Edits save
+            automatically. Ctrl+D duplicates. Drag the round handle to rotate;
+            hold Shift while rotating to snap to 15°. Hold Shift during resize
+            to keep proportions, or during a move to constrain its direction.
+          </p>
+          <input
+            id="layer-search"
+            type="search"
+            placeholder="Search layers by name…"
+            aria-label="Search layers"
+          />
+          <select
+            id="edit-layer"
+            aria-label="Layers to edit"
+            multiple
+            size="6"
+          ></select>
+          <button id="edit-duplicate" disabled>Duplicate · Ctrl+D</button>
+          <button id="edit-front" disabled>Bring to front</button>
+          <button id="edit-back" disabled>Send to back</button>
+          <button id="edit-delete" disabled>Delete selected</button>
+          <button id="edit-parent" disabled>Select parent</button>
+          <button id="edit-undo" disabled>Undo</button
+          ><button id="edit-redo" disabled>Redo</button
+          ><button id="edit-reset" disabled>Reset layer</button>
+          <fieldset id="edit-fields" disabled>
+            <label
+              >Offset X (px)<input id="edit-x" type="number" step="any"
+            /></label>
+            <label
+              >Offset Y (px)<input id="edit-y" type="number" step="any"
+            /></label>
+            <label
+              >Width (px)<input
+                id="edit-width"
+                type="number"
+                min="1"
+                step="any"
+            /></label>
+            <label
+              >Height (px)<input
+                id="edit-height"
+                type="number"
+                min="1"
+                step="any"
+            /></label>
+            <label
+              >Font size (px)<input
+                id="edit-font"
+                type="number"
+                min="1"
+                step="any"
+            /></label>
+            <label
+              >Gap (px)<input id="edit-gap" type="number" min="0" step="any"
+            /></label>
+            <label
+              >Container direction<select id="edit-direction">
+                <option value="">Unchanged</option>
+                <option value="row">Horizontal row</option>
+                <option value="column">Vertical column</option>
+              </select></label
+            >
+            <label
+              >Text wrapping<select id="edit-wrap">
+                <option value="">Unchanged</option>
+                <option value="normal">Normal flow</option>
+                <option value="nowrap">Single line</option>
+                <option value="pre-wrap">Preserve line breaks</option>
+              </select></label
+            >
+            <label
+              >Text colour<input
+                id="edit-color-picker"
+                type="color"
+                aria-label="Choose text colour" /><input
+                id="edit-color"
+                type="text"
+                placeholder="#ff9900"
+                aria-label="Text colour value"
+            /></label>
+            <label
+              >Rotate by (°)<input id="edit-rotation" type="number" step="1"
+            /></label>
+            <label
+              >Text alignment<select id="edit-align">
+                <option value="">Unchanged</option>
+                <option value="left">Left</option>
+                <option value="center">Centre</option>
+                <option value="right">Right</option>
+                <option value="justify">Justify</option>
+              </select></label
+            >
+            <label
+              >Word arrangement<select id="edit-words">
+                <option value="">Keep current</option>
+                <option value="row">Side by side</option>
+                <option value="stack">One word per line</option>
+              </select></label
+            >
+            <label
+              >Font family<input
+                id="edit-family"
+                type="text"
+                list="font-families"
+                placeholder="Arial, sans-serif"
+            /></label>
+            <datalist id="font-families">
+              <option value="Arial, sans-serif"></option>
+              <option value="Georgia, serif"></option>
+              <option value="Inter, sans-serif"></option>
+              <option value="Roboto, sans-serif"></option>
+              <option value="'Times New Roman', serif"></option>
+              <option value="'Courier New', monospace"></option>
+            </datalist>
+            <label
+              >Font weight<select id="edit-weight">
+                <option value="100">Thin</option>
+                <option value="300">Light</option>
+                <option value="400">Regular</option>
+                <option value="500">Medium</option>
+                <option value="600">Semibold</option>
+                <option value="700">Bold</option>
+                <option value="900">Black</option>
+              </select></label
+            >
+            <label
+              >Font style<select id="edit-font-style">
+                <option value="normal">Normal</option>
+                <option value="italic">Italic</option>
+                <option value="oblique">Oblique</option>
+              </select></label
+            >
+            <label
+              >Decoration<select id="edit-decoration">
+                <option value="none">None</option>
+                <option value="underline">Underline</option>
+                <option value="line-through">Strikethrough</option>
+              </select></label
+            >
+            <label>Text<textarea id="edit-text"></textarea></label>
+            <span class="hint">Changes save automatically.</span>
+          </fieldset>
+          <p class="hint" id="source-selection-status" role="status">
+            Selecting preview layers also selects their originals in Figma.
+          </p>
+          <p class="hint" id="edit-status" role="status">
+            Enable editing to select a layer on the website.
+          </p>
+        </section>
+        <div class="previewbar">
+          <label for="pages">Page</label
+          ><select id="pages" aria-label="Preview page"></select
+          ><label for="width">Width</label
+          ><select id="width">
+            <option value="100%">Fit</option>
+            <option value="375px">Mobile · 375</option>
+            <option value="768px">Tablet · 768</option>
+            <option value="1920px">Desktop · 1920</option>
+          </select>
+          <label for="canvas-zoom">Zoom</label>
+          <select id="canvas-zoom">
+            <option value="fit">Fit</option>
+            <option value="0.25">25%</option>
+            <option value="0.5">50%</option>
+            <option value="0.75">75%</option>
+            <option value="1" selected>100%</option>
+            <option value="1.5">150%</option>
+            <option value="2">200%</option>
+          </select>
+          <label><input type="checkbox" id="prototype-mode" /> Prototype</label
+          ><button id="prototype-back">Back</button>
+          <span
+            id="figma-selection-card"
+            draggable="true"
+            title="Select layers in Figma, then drag this card onto the generated viewport."
+            style="padding: 8px; border: 1px dashed #365eea; cursor: grab"
+            >Select layers in Figma</span
+          ><button id="import-selection">Import selection</button>
+          <button id="auto-responsive">Auto responsive · all pages</button
+          ><button id="code-open" disabled>Edit HTML / CSS / JS</button>
+          <button id="canvas-focus">Expand canvas</button>
+        </div>
+        <div id="canvas-viewport">
+          <div id="canvas-stage">
+            <iframe
+              id="frame"
+              title="Generated website preview"
+              sandbox=""
+            ></iframe>
+          </div>
+        </div>
+        <p class="hint">
+          Sandboxed preview. Edit mode selects layers; Prototype tests existing
+          page links.
+        </p>
+      </div>
+      <details>
+        <summary id="diagnostic-title">Export diagnostics</summary>
+        <ul id="errors"></ul>
+        <ul id="warnings"></ul>
+      </details>
+    </main>
+    <dialog
+      id="warning-dialog"
+      aria-label="Export warnings"
+      style="
+        width: 90vw;
+        max-width: 850px;
+        max-height: 85vh;
+        overflow: auto;
+        border: 1px solid #ccd3df;
+        border-radius: 8px;
+      "
+    >
+      <h2>Export warnings</h2>
+      <p>
+        Warnings explain what may differ from Figma. The count alone does not
+        mean the design is broken.
+      </p>
+      <label
+        ><input type="checkbox" id="warning-images" />Allow rendered images for
+        supported gradient shapes</label
+      >
+      <p>
+        Image fallback preserves the original editable Figma layer. Its exported
+        paint becomes a PNG, not editable HTML. Fonts, masks, mixed text,
+        complex effects and responsive layout still need review.
+      </p>
+      <button id="fix-warnings" disabled>
+        Auto-fix supported warnings in Figma
+      </button>
+      <button id="warning-close">Close</button>
+      <p id="warning-action-status" role="status"></p>
+      <ul id="warning-list"></ul>
+      <h3>Resolve font warnings</h3>
+      <p>
+        Choose the matching licensed font file and variant. It will be embedded
+        in the preview and exported CSS. Fonts are retained during this plugin
+        session, including re-analysis.
+      </p>
+      <label
+        >Font variant
+        <select id="warning-font-variant"></select
+      ></label>
+      <label
+        >Add font file
+        <input id="warning-font-file" type="file" accept=".woff2,.woff,.ttf"
+      /></label>
+      <p id="warning-font-status" role="status"></p>
+      <h3>Export notes</h3>
+      <ul id="warning-notes"></ul>
+    </dialog>
+    <dialog id="quick-colour-dialog" aria-label="Text colour">
+      <p>Selected text colour</p>
+      <input
+        type="color"
+        id="quick-colour"
+        aria-label="Quick text colour"
+      /><button id="quick-colour-close">Done</button>
+    </dialog>
+    <dialog id="code-dialog" aria-label="Website code editor">
+      <div class="previewbar">
+        <select id="code-file" aria-label="Code file"></select
+        ><button id="code-add-js">Add JavaScript</button
+        ><button id="code-reset">Reset file</button
+        ><button id="code-close">Close code</button>
+      </div>
+      <p id="code-note" class="hint"></p>
+      <p id="code-errors" role="status"></p>
+      <textarea
+        id="code-content"
+        aria-label="Source code"
+        spellcheck="false"
+      ></textarea>
+    </dialog>
+    <button
+      id="window-resize"
+      title="Drag, then release to resize plugin window. Arrow keys resize; Shift makes larger steps."
+      aria-label="Resize plugin window"
+    >
+      ◢
+    </button>
+    <script>
+      /* BUNDLE */
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "figma-clean-html-exporter",
+  "version": "1.0.0",
+  "description": "Figma plugin exporting independent HTML, CSS, vanilla JavaScript and assets",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "check": "npm run typecheck && npm test && npm run build",
+    "test:browser": "node scripts/browser-test.mjs && tsx scripts/bridge-test.ts && tsx scripts/ui-test.ts",
+    "format": "prettier --write src tests scripts docs README.md",
+    "test:canvas": "tsx scripts/canvas-test.ts",
+    "test:workspace": "tsx scripts/workspace-test.ts",
+    "test:resize": "tsx scripts/window-resize-test.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.139.0",
+    "@playwright/test": "^1.63.0",
+    "@types/css-tree": "^3.2.0",
+    "@types/node": "^26.6.2",
+    "css-tree": "^3.2.1",
+    "esbuild": "^0.28.2",
+    "parse5": "^8.0.1",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}
