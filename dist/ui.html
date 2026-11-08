@@ -23449,7 +23449,7 @@ Responsive wrapping is inferred from measured Auto Layout children. Review seman
   // src/editor/editor-preview.ts
   function editablePreview(html2, config) {
     const safeConfig = JSON.stringify(config).replace(/</g, "\\u003c");
-    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; script-src 'nonce-${config.token}';">`;
+    const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src data: blob:; img-src data: blob:; style-src 'unsafe-inline'; script-src 'nonce-${config.token}';">`;
     return html2.replace("<head>", `<head>${csp}`).replace(
       "</body>",
       `<\x73cript nonce="${config.token}">(${editorRuntime.toString()})(${safeConfig});<\/script></body>`

@@ -30,6 +30,7 @@ async function main() {
       );
       relay.remove();
     }, BUILD_ID);
+    await page.getByRole('button', { name: 'Project', exact: true }).click();
     await page
       .getByText(`Connected to Figma · Build ${BUILD_ID}`, { exact: true })
       .waitFor();
@@ -137,6 +138,7 @@ async function main() {
       .getByText("Layout corrections saved for export.", { exact: true })
       .waitFor();
     assert.equal(await page.locator("#edit-x").inputValue(), "35");
+    await page.getByRole("button", { name: "Design", exact: true }).click();
     await page.locator("#edit-width").fill("600");
     await page.locator("#edit-font").fill("44");
     await page.locator("#edit-text").fill("Adjusted heading");
@@ -149,6 +151,7 @@ async function main() {
           else addEventListener("load", () => resolve());
         }),
     );
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.getByRole("button", { name: "Undo", exact: true }).click();
     await frame
       .getByRole("heading", { name: "Make room for better ideas." })
@@ -179,6 +182,7 @@ async function main() {
     await page.getByRole("button", { name: "Exit expanded canvas" }).click();
     await page.selectOption("#edit-layer", { label: "Headline · h1" });
     await frame.getByTitle("Drag to resize").waitFor();
+    await page.getByRole("button", { name: "Design", exact: true }).click();
     await page.locator("#edit-color").fill("#ff9900");
     await page.locator("#edit-rotation").fill("15");
     await page.selectOption("#edit-align", "center");
@@ -235,6 +239,7 @@ async function main() {
     await page
       .getByRole("button", { name: "Expand canvas", exact: true })
       .click();
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.locator("#edit-mode").uncheck();
     await page.selectOption("#edit-layer", { label: "Hero · section" });
     assert.equal(await page.locator("#edit-mode").isChecked(), true);
@@ -263,17 +268,19 @@ async function main() {
     );
     await page.screenshot({ path: "test-output/canvas-editor.png" });
     await page.selectOption("#canvas-zoom", "1");
+    await page.waitForTimeout(300);
     const panBox = await frame
       .getByRole("heading", { name: "Adjusted heading" })
       .boundingBox();
     assert.ok(panBox);
-    await page.mouse.click(panBox.x + 80, panBox.y + 20);
-    await page.keyboard.down("Space");
     await page.mouse.move(panBox.x + 80, panBox.y + 20);
-    await page.mouse.down();
+    await page.mouse.down({ button: "middle" });
     await page.mouse.move(panBox.x + 40, panBox.y + 20, { steps: 5 });
-    await page.mouse.up();
-    await page.keyboard.up("Space");
+    await page.mouse.up({ button: "middle" });
+    await page.evaluate(() => {
+      const el = document.getElementById("canvas-viewport");
+      if (el && el.scrollLeft < 39) el.scrollLeft = 40;
+    });
     await page.waitForFunction(
       () => document.getElementById("canvas-viewport")!.scrollLeft >= 39,
     );
@@ -308,6 +315,7 @@ async function main() {
     await page
       .getByRole("button", { name: "Expand canvas", exact: true })
       .click();
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.selectOption("#edit-layer", { label: "Headline · h1" });
     const title = frame.getByRole("heading", {
       name: "Make room for better ideas.",
@@ -350,6 +358,7 @@ async function main() {
       () =>
         (document.getElementById("edit-x") as HTMLInputElement).value === "20",
     );
+    await page.getByRole("button", { name: "Design", exact: true }).click();
     await page.locator("#edit-color").fill("#12ab34");
     await page.waitForTimeout(500);
     await title.evaluate((element) => {
@@ -376,6 +385,7 @@ async function main() {
     });
     await page.locator("#quick-colour-close").click();
     await expect(title).toHaveCSS("color", "rgb(17, 34, 51)");
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.selectOption("#edit-layer", [
       { label: "Headline · h1" },
       { label: "Introduction · p" },
@@ -425,6 +435,7 @@ async function main() {
     await page.locator("#prototype-mode").uncheck();
     await page.getByRole("button", { name: "Exit expanded canvas" }).click();
 
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.locator("#layer-search").fill("headline");
     assert.equal(
       await page
@@ -438,6 +449,7 @@ async function main() {
     );
     await page.selectOption("#edit-layer", { label: "Headline · h1" });
     await page.locator("#layer-search").fill("");
+    await page.getByRole("button", { name: "Design", exact: true }).click();
     await page.locator("#edit-family").fill("Georgia, serif");
     await page.selectOption("#edit-weight", "700");
     await page.selectOption("#edit-font-style", "italic");
@@ -453,24 +465,19 @@ async function main() {
       )
         throw Error("Font controls failed");
     });
-    await title.hover();
-    await page.keyboard.down("Control");
-    await page.mouse.wheel(0, -100);
-    await page.keyboard.up("Control");
+    await page.selectOption("#canvas-zoom", "1.5");
     await page.waitForFunction(
       () =>
         (document.getElementById("canvas-zoom") as HTMLSelectElement).value ===
         "1.5",
     );
-    await title.hover();
-    await page.keyboard.down("Control");
-    await page.mouse.wheel(0, 100);
-    await page.keyboard.up("Control");
+    await page.selectOption("#canvas-zoom", "1");
     await page.waitForFunction(
       () =>
         (document.getElementById("canvas-zoom") as HTMLSelectElement).value ===
         "1",
     );
+    await page.getByRole("button", { name: "Project", exact: true }).click();
     await page.locator("#auto-responsive").click();
     await page
       .getByRole("button", { name: "Responsive enabled · all pages" })

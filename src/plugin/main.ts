@@ -104,6 +104,7 @@ const sendSelection = () =>
     })),
   });
 figma.on("selectionchange", sendSelection);
+sendSelection();
 figma.ui.onmessage = async (message: unknown) => {
   if (windowControls.handle(message)) return;
   if (

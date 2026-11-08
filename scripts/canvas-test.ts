@@ -106,6 +106,7 @@ async function main() {
       },
       { doc, result, build: BUILD_ID },
     );
+    await page.getByRole("button", { name: "Project", exact: true }).click();
     await page.getByRole("button", { name: "Show 2 export warnings" }).click();
     await expect(page.locator("#warning-list li")).toHaveCount(2);
     await expect(page.locator("#warning-list")).toContainText(
@@ -152,6 +153,7 @@ async function main() {
     );
     await expect(page.locator("#warning-list li")).toHaveCount(1);
     await page.locator("#warning-close").click();
+    await page.getByRole("button", { name: "Layers", exact: true }).click();
     await page.locator("#edit-mode").check();
     await page.locator("#canvas-focus").click();
     await page.setViewportSize({ width: 800, height: 1000 });
@@ -164,6 +166,7 @@ async function main() {
       );
     });
     await page.setViewportSize({ width: 1400, height: 1000 });
+    await page.locator("#canvas-focus").click();
     const frame = page.frameLocator("#frame");
     const title = frame.locator(".title");
     await title.click();
@@ -208,7 +211,7 @@ async function main() {
     await expect(title).toHaveCSS("height", "100px");
     await page.locator("#edit-undo").click();
     await expect(title).toHaveCSS("width", "200px");
-    await page.locator("#canvas-focus").click();
+    await page.getByRole("button", { name: "Project", exact: true }).click();
     await page.locator("#code-open").click();
     await page.locator("#code-add-js").click();
     await page

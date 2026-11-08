@@ -22053,6 +22053,7 @@ Responsive wrapping is inferred from measured Auto Layout children. Review seman
         }))
       });
       figma.on("selectionchange", sendSelection);
+      sendSelection();
       figma.ui.onmessage = async (message) => {
         if (windowControls.handle(message)) return;
         if (message && typeof message === "object" && "type" in message && message.type === "select-source-layers") {
